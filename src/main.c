@@ -3,7 +3,13 @@
 #include "../include/mystrfunctions.h"
 #include "../include/myfilefunctions.h"
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Check if user provided a filename
+    if (argc < 2) {
+        printf("Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
+
     printf("--- Testing String Functions ---\n");
 
     char str1[100] = "Hello";
@@ -23,9 +29,9 @@ int main() {
 
     printf("\n--- Testing File Functions ---\n");
 
-    FILE* fp = fopen("test.txt", "r");
+    FILE* fp = fopen(argv[1], "r");
     if (!fp) {
-        printf("Could not open test.txt (create this file with some text)\n");
+        printf("Could not open file %s\n", argv[1]);
         return 1;
     }
 
@@ -48,4 +54,5 @@ int main() {
     fclose(fp);
     return 0;
 }
+
 
