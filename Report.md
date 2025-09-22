@@ -62,3 +62,22 @@ In this project, the release contains the compiled `bin/client` executable so an
 **Answer:**
 - Yes, nm shows symbols like mystrlen with a T, meaning they are in the .text section of the binary.
 - This indicates that static linking copied the code for these functions directly into the executable, so client_static does not depend on the .a file at runtime.
+
+# Feature-4: Additional Questions
+
+### Q1. What is Position-Independent Code (-fPIC) and why is it a fundamental requirement for creating shared libraries?
+- Position-Independent Code (PIC) means the compiled machine code can execute correctly regardless of where in memory it is loaded.  
+- The compiler flag `-fPIC` ensures that addresses are calculated relative to registers instead of absolute memory locations.  
+- This is a fundamental requirement for shared libraries because the operating system may load `.so` files at different memory addresses each time. Without PIC, the library would not be reusable by multiple processes safely.
+
+### Q2. Explain the difference in file size between your static and dynamic clients. Why does this difference exist?
+- The static client (`client_static`) is significantly larger in file size than the dynamic client (`client_dynamic`).  
+- This is because static linking copies all the code from the library (`libmyutils.a`) directly into the executable.  
+- The dynamic client only contains references to the functions and relies on the shared library at runtime, so its executable is smaller.  
+- The trade-off is: static executables are self-contained, while dynamic executables depend on external `.so` files.
+
+### Q3. What is the LD_LIBRARY_PATH environment variable? Why was it necessary to set it for your program to run, and what does this tell you about the responsibilities of the operating system's dynamic loader?
+- `LD_LIBRARY_PATH` is an environment variable that tells the dynamic loader where to look for shared libraries at runtime, in addition to the system’s default library paths (like `/lib` and `/usr/lib`).  
+- It was necessary to set `LD_LIBRARY_PATH=lib:$LD_LIBRARY_PATH` because `libmyutils.so` was stored in a custom `lib/` directory not known to the system.  
+- This shows that the operating system’s dynamic loader is responsible for resolving undefined symbols in executables by locating and loading the correct `.so` files into memory before the program runs.
+

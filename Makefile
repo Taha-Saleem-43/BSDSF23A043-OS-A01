@@ -1,6 +1,6 @@
 # Compiler and Flags
 CC = gcc
-CFLAGS = -Iinclude -Wall
+CFLAGS = -Wall -Iinclude
 
 # Directories
 SRC = src
@@ -9,34 +9,40 @@ BIN = bin
 LIB = lib
 
 # Targets
-TARGET = $(BIN)/client_static
 STATIC_LIB = $(LIB)/libmyutils.a
+DYNAMIC_LIB = $(LIB)/libmyutils.so
+STATIC_TARGET = $(BIN)/client_static
+DYNAMIC_TARGET = $(BIN)/client_dynamic
 
-# Sources and Objects
-LIB_SOURCES = $(SRC)/mystrfunctions.c $(SRC)/myfilefunctions.c
-LIB_OBJECTS = $(OBJ)/mystrfunctions.o $(OBJ)/myfilefunctions.o
+# Source and Object files
+UTILS_SRC = $(SRC)/mystrfunctions.c $(SRC)/myfilefunctions.c
+UTILS_OBJ = $(OBJ)/mystrfunctions.o $(OBJ)/myfilefunctions.o
+MAIN_OBJ = $(OBJ)/main.o
 
-MAIN_SOURCE = $(SRC)/main.c
-MAIN_OBJECT = $(OBJ)/main.o
+# Default target
+all: $(STATIC_TARGET) $(DYNAMIC_TARGET)
 
-# Linking Rule (link main with static lib)
-$(TARGET): $(MAIN_OBJECT) $(STATIC_LIB)
-	$(CC) $(MAIN_OBJECT) -L$(LIB) -lmyutils -o $(TARGET)
+# -------- Static Build --------
+$(STATIC_LIB): $(UTILS_OBJ)
+	ar rcs $@ $^
 
-# Build static library
-$(STATIC_LIB): $(LIB_OBJECTS)
-	ar rcs $@ $(LIB_OBJECTS)
-	ranlib $@
+$(STATIC_TARGET): $(MAIN_OBJ) $(STATIC_LIB)
+	$(CC) $(MAIN_OBJ) -L$(LIB) -lmyutils -o $@
 
-# Compilation Rule
+# -------- Dynamic Build --------
+$(DYNAMIC_LIB): $(UTILS_OBJ)
+	$(CC) -shared -o $@ $^
+
+$(DYNAMIC_TARGET): $(MAIN_OBJ) $(DYNAMIC_LIB)
+	$(CC) $(MAIN_OBJ) -L$(LIB) -lmyutils -o $@
+
+# -------- Compilation Rules --------
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
-# Phony Targets
+# -------- Phony Targets --------
 .PHONY: all clean
 
-all: $(TARGET)
-
 clean:
-	rm -f $(OBJ)/*.o $(TARGET) $(STATIC_LIB)
+	rm -f $(OBJ)/*.o $(BIN)/* $(LIB)/*
 
