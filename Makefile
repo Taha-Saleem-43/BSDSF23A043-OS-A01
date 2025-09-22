@@ -6,17 +6,27 @@ CFLAGS = -Iinclude -Wall
 SRC = src
 OBJ = obj
 BIN = bin
+LIB = lib
 
-# Target
-TARGET = $(BIN)/client
+# Targets
+TARGET = $(BIN)/client_static
+STATIC_LIB = $(LIB)/libmyutils.a
 
-# Source and Object files
-SOURCES = $(SRC)/main.c $(SRC)/mystrfunctions.c $(SRC)/myfilefunctions.c
-OBJECTS = $(OBJ)/main.o $(OBJ)/mystrfunctions.o $(OBJ)/myfilefunctions.o
+# Sources and Objects
+LIB_SOURCES = $(SRC)/mystrfunctions.c $(SRC)/myfilefunctions.c
+LIB_OBJECTS = $(OBJ)/mystrfunctions.o $(OBJ)/myfilefunctions.o
 
-# Linking Rule
-$(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET)
+MAIN_SOURCE = $(SRC)/main.c
+MAIN_OBJECT = $(OBJ)/main.o
+
+# Linking Rule (link main with static lib)
+$(TARGET): $(MAIN_OBJECT) $(STATIC_LIB)
+	$(CC) $(MAIN_OBJECT) -L$(LIB) -lmyutils -o $(TARGET)
+
+# Build static library
+$(STATIC_LIB): $(LIB_OBJECTS)
+	ar rcs $@ $(LIB_OBJECTS)
+	ranlib $@
 
 # Compilation Rule
 $(OBJ)/%.o: $(SRC)/%.c
@@ -28,5 +38,5 @@ $(OBJ)/%.o: $(SRC)/%.c
 all: $(TARGET)
 
 clean:
-	rm -f $(OBJ)/*.o $(TARGET)
+	rm -f $(OBJ)/*.o $(TARGET) $(STATIC_LIB)
 
