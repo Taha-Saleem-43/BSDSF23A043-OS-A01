@@ -37,3 +37,28 @@ Releases are useful because they:
 In this project, the release contains the compiled `bin/client` executable so anyone can run the program directly.
 
 ---
+
+# Feature-3: Static Library
+
+## Q1. Compare the Makefile from Part 2 and Part 3. What are the key differences in the variables and rules that enable the creation of a static library?
+
+**Answer:**
+- In Part-2, the Makefile compiled and linked all source files directly into one executable.
+- In Part-3, the utility functions were first compiled into object files and then archived into a static library (libmyutils.a) using the ar command.
+- The final executable only linked main.o with this library using -L (library path) and -l (library name).
+- This makes the project modular and closer to real-world professional builds.
+
+---
+
+## Q2. What is the purpose of the ar command? Why is ranlib often used immediately after it?
+
+**Answer:**
+- The ar command archives object files into a static library (.a).
+- The ranlib command generates an index of the symbols in the library so the linker can quickly find functions.
+- Although many modern ar versions create the index automatically, using ranlib ensures compatibility across systems.
+
+## Q3. When you run nm on your client_static executable, are the symbols for functions like mystrlen present? What does this tell you about how static linking works?
+
+**Answer:**
+- Yes, nm shows symbols like mystrlen with a T, meaning they are in the .text section of the binary.
+- This indicates that static linking copied the code for these functions directly into the executable, so client_static does not depend on the .a file at runtime.
