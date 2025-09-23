@@ -1,42 +1,90 @@
+# ==============================
 # Compiler and Flags
+# ==============================
 CC = gcc
-CFLAGS = -Iinclude -Wall
+CFLAGS = -Wall -Iinclude
 
+# ==============================
 # Directories
+# ==============================
 SRC = src
 OBJ = obj
 BIN = bin
 LIB = lib
+MAN = man/man3
 
+# ==============================
 # Targets
-TARGET = $(BIN)/client_static
+# ==============================
 STATIC_LIB = $(LIB)/libmyutils.a
+DYNAMIC_LIB = $(LIB)/libmyutils.so
+STATIC_TARGET = $(BIN)/client_static
+DYNAMIC_TARGET = $(BIN)/client_dynamic
 
+# ==============================
 # Sources and Objects
-LIB_SOURCES = $(SRC)/mystrfunctions.c $(SRC)/myfilefunctions.c
-LIB_OBJECTS = $(OBJ)/mystrfunctions.o $(OBJ)/myfilefunctions.o
+# ==============================
+UTILS_SRC = $(SRC)/mystrfunctions.c $(SRC)/myfilefunctions.c
+UTILS_OBJ = $(OBJ)/mystrfunctions.o $(OBJ)/myfilefunctions.o
+MAIN_SRC  = $(SRC)/main.c
+MAIN_OBJ  = $(OBJ)/main.o
 
-MAIN_SOURCE = $(SRC)/main.c
-MAIN_OBJECT = $(OBJ)/main.o
+# ==============================
+# Default target
+# ==============================
+all: static dynamic
 
-# Linking Rule (link main with static lib)
-$(TARGET): $(MAIN_OBJECT) $(STATIC_LIB)
-	$(CC) $(MAIN_OBJECT) -L$(LIB) -lmyutils -o $(TARGET)
-
-# Build static library
-$(STATIC_LIB): $(LIB_OBJECTS)
-	ar rcs $@ $(LIB_OBJECTS)
+# ==============================
+# Static Build
+# ==============================
+$(STATIC_LIB): $(UTILS_OBJ) | $(LIB)
+	ar rcs $@ $^
 	ranlib $@
 
+$(STATIC_TARGET): $(MAIN_OBJ) $(STATIC_LIB) | $(BIN)
+	# link directly to the .a file to guarantee static build
+	$(CC) $(MAIN_OBJ) $(STATIC_LIB) -o $@
+
+# ==============================
+# Dynamic Build
+# ==============================
+$(DYNAMIC_LIB): $(UTILS_OBJ) | $(LIB)
+	$(CC) -shared -o $@ $^
+
+$(DYNAMIC_TARGET): $(MAIN_OBJ) $(DYNAMIC_LIB) | $(BIN)
+	# use rpath so binary knows where to find .so
+	$(CC) $(MAIN_OBJ) -L$(LIB) -lmyutils -Wl,-rpath=$(LIB) -o $@
+
+# ==============================
 # Compilation Rule
-$(OBJ)/%.o: $(SRC)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+# ==============================
+$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
+# ==============================
+# Directory creation
+# ==============================
+$(OBJ) $(BIN) $(LIB):
+	mkdir -p $@
+
+# ==============================
+# Install Target
+# ==============================
+.PHONY: install
+install: $(DYNAMIC_TARGET)
+	install -d /usr/local/bin
+	install -m 755 $(DYNAMIC_TARGET) /usr/local/bin/client
+	install -d /usr/local/share/man/man3
+	install -m 644 $(MAN)/* /usr/local/share/man/man3/
+	mandb >/dev/null 2>&1 || true
+
+# ==============================
 # Phony Targets
-.PHONY: all clean
+# ==============================
+.PHONY: all clean static dynamic
 
-all: $(TARGET)
+static: $(STATIC_TARGET)
+dynamic: $(DYNAMIC_TARGET)
 
 clean:
-	rm -f $(OBJ)/*.o $(TARGET) $(STATIC_LIB)
-
+	rm -f $(OBJ)/*.o $(BIN)/* $(LIB)/*
