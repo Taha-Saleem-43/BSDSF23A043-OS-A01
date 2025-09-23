@@ -63,7 +63,7 @@ In this project, the release contains the compiled `bin/client` executable so an
 - Yes, nm shows symbols like mystrlen with a T, meaning they are in the .text section of the binary.
 - This indicates that static linking copied the code for these functions directly into the executable, so client_static does not depend on the .a file at runtime.
 
-# Feature-4: Additional Questions
+# Feature-4 
 
 ### Q1. What is Position-Independent Code (-fPIC) and why is it a fundamental requirement for creating shared libraries?
 - Position-Independent Code (PIC) means the compiled machine code can execute correctly regardless of where in memory it is loaded.  
@@ -80,4 +80,5 @@ In this project, the release contains the compiled `bin/client` executable so an
 - `LD_LIBRARY_PATH` is an environment variable that tells the dynamic loader where to look for shared libraries at runtime, in addition to the system’s default library paths (like `/lib` and `/usr/lib`).  
 - It was necessary to set `LD_LIBRARY_PATH=lib:$LD_LIBRARY_PATH` because `libmyutils.so` was stored in a custom `lib/` directory not known to the system.  
 - This shows that the operating system’s dynamic loader is responsible for resolving undefined symbols in executables by locating and loading the correct `.so` files into memory before the program runs.
+
 
