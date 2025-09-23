@@ -1,0 +1,13 @@
+.TH MYSTRNCPY 3 "September 23, 2025" "libmyutils" "Library Functions"
+.SH NAME
+mystrncpy \- copy at most n characters of a string
+.SH SYNOPSIS
+.B int mystrncpy(char *dest, const char *src, int n);
+.SH DESCRIPTION
+The mystrncpy() function copies at most n characters from the string
+pointed to by src into the buffer pointed to by dest. If src is shorter
+than n, the remainder of dest is usually left unchanged (implementation
+specific). Ensure dest has space for n characters plus a null terminator
+if needed by your implementation.
+.SH AUTHOR
+Your Taha <tahasaleem981@gmail.com>

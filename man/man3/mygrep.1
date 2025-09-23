@@ -1,0 +1,12 @@
+.TH MYGREP 3 "September 23, 2025" "libmyutils" "Library Functions"
+.SH NAME
+mygrep \- search lines containing a substring in a file
+.SH SYNOPSIS
+.B int mygrep(FILE *fp, const char *search_str, char ***matches);
+.SH DESCRIPTION
+mygrep() searches the file stream fp for lines that contain search_str.
+It allocates an array of strings and sets *matches to point to that array.
+It returns the number of matching lines on success, or -1 on failure.
+The caller is responsible for freeing the array and each returned string.
+.SH AUTHOR
+Your Taha <tahasaleem981@gmail.com>
