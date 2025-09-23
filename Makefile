@@ -7,19 +7,19 @@ CFLAGS = -Wall -Iinclude
 # ==============================
 # Directories
 # ==============================
-SRC = src
-OBJ = obj
-BIN = bin
-LIB = lib
-MAN = man/man3
-MANDIR = /usr/local/share/man
+SRC  = src
+OBJ  = obj
+BIN  = bin
+LIB  = lib
+MAN  = man/man3
+MANDIR = /usr/local/share/man/man3
 
 # ==============================
 # Targets
 # ==============================
-STATIC_LIB = $(LIB)/libmyutils.a
-DYNAMIC_LIB = $(LIB)/libmyutils.so
-STATIC_TARGET = $(BIN)/client_static
+STATIC_LIB     = $(LIB)/libmyutils.a
+DYNAMIC_LIB    = $(LIB)/libmyutils.so
+STATIC_TARGET  = $(BIN)/client_static
 DYNAMIC_TARGET = $(BIN)/client_dynamic
 
 # ==============================
@@ -43,8 +43,8 @@ $(STATIC_LIB): $(UTILS_OBJ) | $(LIB)
 	ranlib $@
 
 $(STATIC_TARGET): $(MAIN_OBJ) $(STATIC_LIB) | $(BIN)
-	# link directly to the .a file to guarantee static build
-	$(CC) $(MAIN_OBJ) $(STATIC_LIB) -o $@
+	# force static linking so no .so is pulled in
+	$(CC) -static $(MAIN_OBJ) $(STATIC_LIB) -o $@
 
 # ==============================
 # Dynamic Build
@@ -75,8 +75,8 @@ $(OBJ) $(BIN) $(LIB):
 install: $(DYNAMIC_TARGET)
 	install -d /usr/local/bin
 	install -m 755 $(DYNAMIC_TARGET) /usr/local/bin/client
-	install -d $(MANDIR)/man3
-	install -m 644 $(MAN)/* $(MANDIR)/man3/
+	install -d $(MANDIR)
+	install -m 644 $(MAN)/* $(MANDIR)/
 	mandb >/dev/null 2>&1 || true
 
 # ==============================
